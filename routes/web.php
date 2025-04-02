@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\UserController;
@@ -43,7 +44,7 @@ Route::get('/log-in', function () { return redirect('/login'); });
 // Tasks inside that Authenticated group:
 
 Route::middleware('auth')->group(function () {
-    Route::view('/app/dashboard', view: 'dashboard')->name('dashboard');
+    Route::get('/app/dashboard', DashboardController::class)->name('dashboard');
     Route::get('/app/tasks', [TaskController::class, 'index'])->name('tasks.index');;
 });
 
@@ -86,6 +87,16 @@ Route::prefix('app')
 // Add a group for routes with URL prefix "admin"
 // Assign middleware called "is_admin" to them
 // Put one Route Group code line here below
+
+Route::prefix('admin')
+->middleware(['auth', 'is_admin'])
+->group(function () {
+    Route::get('/dashboard', \App\Http\Controllers\Admin\DashboardController::class)
+    ->name('admin.dashboard');
+    Route::get('/stats', \App\Http\Controllers\Admin\StatsController::class)
+    ->name('admin.stats');
+});
+
 
 // Tasks inside that /admin group:
 
