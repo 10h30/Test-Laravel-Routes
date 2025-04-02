@@ -1,9 +1,9 @@
 <?php
 
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\TaskController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
-
 
 /*
 |--------------------------------------------------------------------------
@@ -21,18 +21,16 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index']);
 
-
 // Task 2: point the GET URL "/user/[name]" to the UserController method "show"
 // It doesn't use Route Model Binding, it expects $name as a parameter
 // Put one code line here below
-Route::get("/user/{name}", [UserController::class, 'show']);
+Route::get('/user/{name}', [UserController::class, 'show']);
 
 // Task 3: point the GET URL "/about" to the view
 // resources/views/pages/about.blade.php - without any controller
 // Also, assign the route name "about"
 // Put one code line here below
 Route::view('/about', view: 'pages.about')->name('about');
-
 
 // Task 4: redirect the GET URL "log-in" to a URL "login"
 // Put one code line here below
@@ -44,9 +42,33 @@ Route::get('/log-in', function () { return redirect('/login'); });
 
 // Tasks inside that Authenticated group:
 
+Route::middleware('auth')->group(function () {
+    Route::view('/app/dashboard', view: 'dashboard')->name('dashboard');
+    Route::get('/app/tasks', [TaskController::class, 'index'])->name('tasks.index');;
+});
+
 // Task 6: /app group within a group
 // Add another group for routes with prefix "app"
 // Put one Route Group code line here below
+
+Route::prefix('app')
+->name('tasks.')
+   ->middleware('auth')
+   ->group(function () {
+       Route::get('/tasks', [TaskController::class, 'index'])->name('index');
+    
+       Route::post('/tasks', [TaskController::class, 'store'])->name('store');
+
+       Route::get('/tasks/create', [TaskController::class, 'create'])->name('create');
+
+       Route::get('/tasks/{task}', [TaskController::class, 'show'])->name('show');
+
+       Route::get('/tasks/{task}/edit', [TaskController::class, 'edit'])->name('edit');
+
+       Route::put('/tasks/{task}', [TaskController::class, 'update'])->name('update');
+
+       Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])->name('destroy');
+   });
 
 // Tasks inside that /app group:
 
